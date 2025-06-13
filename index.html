@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Green Hydrogen News</title>
   <style>
     body {
@@ -11,6 +11,7 @@
       margin: 0;
       padding: 20px;
     }
+
     h1 {
       background-color: #00695c;
       color: white;
@@ -18,19 +19,24 @@
       text-align: center;
       border-radius: 8px;
     }
+
     .rss-item {
       border-bottom: 1px solid #ccc;
       padding: 15px 0;
     }
+
     .rss-item a {
       text-decoration: none;
       color: #00695c;
       font-size: 18px;
       font-weight: bold;
     }
+
     .rss-item p {
       margin: 5px 0;
+      color: #333;
     }
+
     .rss-item small {
       color: #777;
     }
@@ -43,7 +49,7 @@
   <script>
     async function loadRSS() {
       try {
-        const rssUrl = encodeURIComponent('https://news.google.com/rss/search?q=green+hydrogen&hl=en-IN&gl=IN&ceid=IN:en');
+        const rssUrl = encodeURIComponent("https://news.google.com/rss/search?q=green+hydrogen&hl=en-IN&gl=IN&ceid=IN:en");
         const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
 
         const response = await fetch(apiUrl);
@@ -57,11 +63,15 @@
           return;
         }
 
-        data.items.slice(0, 5).forEach(item => {
+        // Limit to 10 items
+        data.items.slice(0, 10).forEach(item => {
+          // Remove duplicate title from description
+          const cleanedDescription = item.description.replace(item.title, "").trim();
+
           const html = `
             <div class="rss-item">
               <a href="${item.link}" target="_blank">${item.title}</a>
-              <p>${item.description}</p>
+              <p>${cleanedDescription}</p>
               <small>Published on: ${new Date(item.pubDate).toLocaleString()}</small>
             </div>
           `;
@@ -73,6 +83,7 @@
       }
     }
 
+    // Fetch news immediately on load
     loadRSS();
   </script>
 </body>
