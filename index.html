@@ -4,54 +4,45 @@
   <meta charset="UTF-8">
   <title>Green Hydrogen News</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #fffbe6;
-      padding: 20px;
-    }
-    .rss-title {
-      background-color: #00796B;
-      color: white;
-      padding: 10px;
-      font-size: 24px;
-      text-align: center;
-      border-radius: 6px;
-      margin-bottom: 20px;
-    }
-    .rss-item {
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      padding: 10px;
-      margin-bottom: 10px;
-      background: white;
-    }
-    .rss-item a {
-      font-weight: bold;
-      color: #00796B;
-      text-decoration: none;
-    }
-    .rss-item p {
-      margin: 5px 0;
-    }
+    body { font-family: Arial; background: #fffbe6; padding: 20px; }
+    .rss-title { background: #00796B; color: white; padding: 10px; font-size: 24px; text-align: center; border-radius: 6px; margin-bottom: 20px; }
+    .rss-item { border: 1px solid #ccc; border-radius: 6px; padding: 10px; margin-bottom: 10px; background: white; }
+    .rss-item a { font-weight: bold; color: #00796B; text-decoration: none; }
+    .rss-item p { margin: 5px 0; }
   </style>
 </head>
 <body>
-
   <div class="rss-title">Green Hydrogen News</div>
-  <div id="rss-feed"></div>
-
-  <!-- Load jQuery and the RSS plugin -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://www.jquery-plugins.net/rss/js/jquery.rss.min.js"></script>
+  <div id="rss-feed">Loading...</div>
 
   <script>
-    $("#rss-feed").rss("https://news.google.com/rss/search?q=green+hydrogen", {
-      limit: 5,
-      ssl: true,
-      layoutTemplate: "{entries}",
-      entryTemplate: '<div class="rss-item"><a href="{url}" target="_blank">{title}</a><p>{shortBodyPlain}</p><small>{date}</small></div>'
-    });
+    async function loadRSS(){
+      try {
+        const resp = await fetch('https://api.allorigins.win/raw?url=https://news.google.com/rss/search?q=green+hydrogen');
+        const text = await resp.text();
+        const xml = new window.DOMParser().parseFromString(text, "text/xml");
+        const items = xml.querySelectorAll("item");
+        const container = document.getElementById("rss-feed");
+        container.innerHTML = "";
+        items.forEach((item, i) => {
+          if(i >= 5) return; // limit to 5 items
+          const title = item.querySelector("title").textContent;
+          const link = item.querySelector("link").textContent;
+          const desc = item.querySelector("description").textContent.replace(/<[^>]*>/g, '').substring(0, 200) + "...";
+          const date = new Date(item.querySelector("pubDate").textContent).toLocaleString();
+          container.innerHTML += `
+            <div class="rss-item">
+              <a href="${link}" target="_blank">${title}</a>
+              <p>${desc}</p>
+              <small>${date}</small>
+            </div>`;
+        });
+      } catch (err) {
+        document.getElementById("rss-feed").textContent = "Error loading feed.";
+        console.error(err);
+      }
+    }
+    loadRSS();
   </script>
-
 </body>
 </html>
