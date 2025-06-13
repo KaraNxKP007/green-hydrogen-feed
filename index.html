@@ -46,45 +46,48 @@
   <h1>Green Hydrogen News</h1>
   <div id="rss-feed">Loading news...</div>
 
-  <script>
-    async function loadRSS() {
-      try {
-        const rssUrl = encodeURIComponent("https://news.google.com/rss/search?q=green+hydrogen&hl=en-IN&gl=IN&ceid=IN:en");
-        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
+<script>
+  async function loadRSS() {
+    try {
+      const rssUrl = encodeURIComponent("https://news.google.com/rss/search?q=green+hydrogen&hl=en-IN&gl=IN&ceid=IN:en");
+      const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
 
-        const response = await fetch(apiUrl);
-        const data = await response.json();
+      const response = await fetch(apiUrl);
+      const data = await response.json();
 
-        const container = document.getElementById("rss-feed");
-        container.innerHTML = "";
+      const container = document.getElementById("rss-feed");
+      container.innerHTML = "";
 
-        if (!data.items || data.items.length === 0) {
-          container.innerHTML = "<p>No news articles found.</p>";
-          return;
+      if (!data.items || data.items.length === 0) {
+        container.innerHTML = "<p>No news articles found.</p>";
+        return;
+      }
+
+      data.items.slice(0, 10).forEach(item => {
+        // Clean duplicate title at the start of description
+        let cleanedDescription = item.description.trim();
+        const titleText = item.title.trim();
+        if (cleanedDescription.startsWith(titleText)) {
+          cleanedDescription = cleanedDescription.slice(titleText.length).trim();
         }
 
-        // Limit to 10 items
-        data.items.slice(0, 10).forEach(item => {
-          // Remove duplicate title from description
-          const cleanedDescription = item.description.replace(item.title, "").trim();
-
-          const html = `
-            <div class="rss-item">
-              <a href="${item.link}" target="_blank">${item.title}</a>
-              <p>${cleanedDescription}</p>
-              <small>Published on: ${new Date(item.pubDate).toLocaleString()}</small>
-            </div>
-          `;
-          container.innerHTML += html;
-        });
-      } catch (err) {
-        console.error("Error loading RSS feed:", err);
-        document.getElementById("rss-feed").innerHTML = "<p>Error loading feed. Try again later.</p>";
-      }
+        const html = `
+          <div class="rss-item">
+            <a href="${item.link}" target="_blank">${item.title}</a>
+            <p>${cleanedDescription}</p>
+            <small>Published on: ${new Date(item.pubDate).toLocaleString()}</small>
+          </div>
+        `;
+        container.innerHTML += html;
+      });
+    } catch (err) {
+      console.error("Error loading RSS feed:", err);
+      document.getElementById("rss-feed").innerHTML = "<p>Error loading feed. Try again later.</p>";
     }
+  }
 
-    // Fetch news immediately on load
-    loadRSS();
-  </script>
+  loadRSS(); // Fetch news on page load
+</script>
+
 </body>
 </html>
