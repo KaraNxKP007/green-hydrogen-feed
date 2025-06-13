@@ -14,35 +14,30 @@
 <body>
   <div class="rss-title">Green Hydrogen News</div>
   <div id="rss-feed">Loading...</div>
-
-  <script>
-    async function loadRSS(){
-      try {
-        const resp = await fetch('https://api.allorigins.win/raw?url=https://news.google.com/rss/search?q=green+hydrogen');
-        const text = await resp.text();
-        const xml = new window.DOMParser().parseFromString(text, "text/xml");
-        const items = xml.querySelectorAll("item");
-        const container = document.getElementById("rss-feed");
-        container.innerHTML = "";
-        items.forEach((item, i) => {
-          if(i >= 5) return; // limit to 5 items
-          const title = item.querySelector("title").textContent;
-          const link = item.querySelector("link").textContent;
-          const desc = item.querySelector("description").textContent.replace(/<[^>]*>/g, '').substring(0, 200) + "...";
-          const date = new Date(item.querySelector("pubDate").textContent).toLocaleString();
-          container.innerHTML += `
-            <div class="rss-item">
-              <a href="${link}" target="_blank">${title}</a>
-              <p>${desc}</p>
-              <small>${date}</small>
-            </div>`;
-        });
-      } catch (err) {
-        document.getElementById("rss-feed").textContent = "Error loading feed.";
-        console.error(err);
-      }
+<script>
+  async function loadRSS(){
+    try {
+      const url = 'https://api.rss2json.com/v1/api.json?rss_url=https://news.google.com/rss/search?q=green+hydrogen';
+      const response = await fetch(url);
+      const data = await response.json();
+      const container = document.getElementById("rss-feed");
+      container.innerHTML = "";
+      data.items.slice(0, 5).forEach(item => {
+        container.innerHTML += `
+          <div class="rss-item">
+            <a href="${item.link}" target="_blank">${item.title}</a>
+            <p>${item.description}</p>
+            <small>${new Date(item.pubDate).toLocaleString()}</small>
+          </div>
+        `;
+      });
+    } catch (err) {
+      document.getElementById("rss-feed").textContent = "Failed to load news feed.";
+      console.error("RSS Load Error:", err);
     }
-    loadRSS();
-  </script>
+  }
+  loadRSS();
+</script>
+
 </body>
 </html>
