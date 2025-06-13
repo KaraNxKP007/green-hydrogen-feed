@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Green Hydrogen News</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fffbe6;
+      padding: 20px;
+    }
+    .rss-title {
+      background-color: #00796B;
+      color: white;
+      padding: 10px;
+      font-size: 24px;
+      text-align: center;
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+    .rss-item {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: white;
+    }
+    .rss-item a {
+      font-weight: bold;
+      color: #00796B;
+      text-decoration: none;
+    }
+    .rss-item p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="rss-title">Green Hydrogen News</div>
+  <div id="rss-feed"></div>
+
+  <!-- Load jQuery and the RSS plugin -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://www.jquery-plugins.net/rss/js/jquery.rss.min.js"></script>
+
+  <script>
+    $("#rss-feed").rss("https://news.google.com/rss/search?q=green+hydrogen", {
+      limit: 5,
+      ssl: true,
+      layoutTemplate: "{entries}",
+      entryTemplate: '<div class="rss-item"><a href="{url}" target="_blank">{title}</a><p>{shortBodyPlain}</p><small>{date}</small></div>'
+    });
+  </script>
+
+</body>
+</html>
