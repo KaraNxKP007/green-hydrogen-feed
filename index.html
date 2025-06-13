@@ -2,42 +2,78 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Green Hydrogen News</title>
   <style>
-    body { font-family: Arial; background: #fffbe6; padding: 20px; }
-    .rss-title { background: #00796B; color: white; padding: 10px; font-size: 24px; text-align: center; border-radius: 6px; margin-bottom: 20px; }
-    .rss-item { border: 1px solid #ccc; border-radius: 6px; padding: 10px; margin-bottom: 10px; background: white; }
-    .rss-item a { font-weight: bold; color: #00796B; text-decoration: none; }
-    .rss-item p { margin: 5px 0; }
+    body {
+      background-color: #fffbe6;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      background-color: #00695c;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      border-radius: 8px;
+    }
+    .rss-item {
+      border-bottom: 1px solid #ccc;
+      padding: 15px 0;
+    }
+    .rss-item a {
+      text-decoration: none;
+      color: #00695c;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .rss-item p {
+      margin: 5px 0;
+    }
+    .rss-item small {
+      color: #777;
+    }
   </style>
 </head>
 <body>
-  <div class="rss-title">Green Hydrogen News</div>
-  <div id="rss-feed">Loading...</div>
-<script>
-  async function loadRSS(){
-    try {
-      const url = 'https://api.rss2json.com/v1/api.json?rss_url=https://news.google.com/rss/search?q=green+hydrogen';
-      const response = await fetch(url);
-      const data = await response.json();
-      const container = document.getElementById("rss-feed");
-      container.innerHTML = "";
-      data.items.slice(0, 5).forEach(item => {
-        container.innerHTML += `
-          <div class="rss-item">
-            <a href="${item.link}" target="_blank">${item.title}</a>
-            <p>${item.description}</p>
-            <small>${new Date(item.pubDate).toLocaleString()}</small>
-          </div>
-        `;
-      });
-    } catch (err) {
-      document.getElementById("rss-feed").textContent = "Failed to load news feed.";
-      console.error("RSS Load Error:", err);
-    }
-  }
-  loadRSS();
-</script>
+  <h1>Green Hydrogen News</h1>
+  <div id="rss-feed">Loading news...</div>
 
+  <script>
+    async function loadRSS() {
+      try {
+        const rssUrl = encodeURIComponent('https://news.google.com/rss/search?q=green+hydrogen&hl=en-IN&gl=IN&ceid=IN:en');
+        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
+
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        const container = document.getElementById("rss-feed");
+        container.innerHTML = "";
+
+        if (!data.items || data.items.length === 0) {
+          container.innerHTML = "<p>No news articles found.</p>";
+          return;
+        }
+
+        data.items.slice(0, 5).forEach(item => {
+          const html = `
+            <div class="rss-item">
+              <a href="${item.link}" target="_blank">${item.title}</a>
+              <p>${item.description}</p>
+              <small>Published on: ${new Date(item.pubDate).toLocaleString()}</small>
+            </div>
+          `;
+          container.innerHTML += html;
+        });
+      } catch (err) {
+        console.error("Error loading RSS feed:", err);
+        document.getElementById("rss-feed").innerHTML = "<p>Error loading feed. Try again later.</p>";
+      }
+    }
+
+    loadRSS();
+  </script>
 </body>
 </html>
